@@ -9,6 +9,32 @@ import { PokemonAlreadyExistsError } from "../../../domain/errors/PokemonAlready
 import { ResourceNotFoundError } from "../../../domain/errors/ResourceNotFoundError";
 import type { Request, Response } from "express";
 
+function hasValidPokemonFields(data: unknown): data is UpdatePokemonDTO {
+  if (!data || typeof data !== "object") {
+    return false;
+  }
+
+  const pokemon = data as Record<string, unknown>;
+
+  return (
+    typeof pokemon.name === "string" &&
+    typeof pokemon.type === "string" &&
+    typeof pokemon.hp === "number" &&
+    typeof pokemon.attack === "number" &&
+    typeof pokemon.defense === "number"
+  );
+}
+
+function isCreatePokemonDTO(data: unknown): data is CreatePokemonDTO {
+  if (!hasValidPokemonFields(data)) {
+    return false;
+  }
+
+  const pokemon = data as unknown as Record<string, unknown>;
+
+  return typeof pokemon.id === "string";
+}
+
 export class PokemonController {
   constructor(
     private readonly listPokemonsUseCase: ListPokemonsUseCase,
@@ -17,6 +43,7 @@ export class PokemonController {
     private readonly updatePokemonUseCase: UpdatePokemonUseCase,
     private readonly deletePokemonUseCase: DeletePokemonUseCase,
   ) {}
+
 
   list = async (req: Request, res: Response): Promise<Response> => {
     const type = typeof req.query.type === "string" ? req.query.type : undefined;
@@ -41,7 +68,13 @@ export class PokemonController {
 
   create = async (req: Request, res: Response): Promise<Response> => {
     try {
-      const pokemon = req.body as CreatePokemonDTO;
+      if (!isCreatePokemonDTO(req.body)) {
+        return res.status(400).json({
+          message: "Dados do Pokémon inválidos.",
+        });
+      }
+
+      const pokemon = req.body;
 
       await this.createPokemonUseCase.execute(pokemon);
 
@@ -57,7 +90,13 @@ export class PokemonController {
 
   update = async (req: Request<{ id: string }>,res: Response): Promise<Response> => {
     try {
-      const data = req.body as UpdatePokemonDTO;
+      if (!hasValidPokemonFields(req.body)) {
+        return res.status(400).json({
+          message: "Dados do Pokémon inválidos.",
+        });
+      }
+
+      const data = req.body;
       const pokemon = { id: req.params.id, ...data };
 
       await this.updatePokemonUseCase.execute(pokemon);
