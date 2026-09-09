@@ -97,7 +97,7 @@ export class PokemonController {
       }
 
       const data = req.body;
-      const pokemon = { id: req.params.id, ...data };
+      const pokemon = { ...data, id: req.params.id };
 
       await this.updatePokemonUseCase.execute(pokemon);
 
