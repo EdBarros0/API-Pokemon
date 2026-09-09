@@ -1,6 +1,6 @@
-import type { Pokemon } from "../../domain/entities/Pokemon";
-import { PokemonAlreadyExistsError } from "../../domain/errors/PokemonAlreadyExistsError";
-import type { IPokemonRepository } from "../../domain/repositories/IPokemonRepository";
+import type { Pokemon } from '@domain/entities/Pokemon';
+import { PokemonAlreadyExistsError } from '@domain/errors/PokemonAlreadyExistsError';
+import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
 
 export class CreatePokemonUseCase {
   constructor(private readonly pokemonRepository: IPokemonRepository) {}

@@ -1,5 +1,5 @@
-import type { Pokemon } from "../../../domain/entities/Pokemon";
-import type { IPokemonRepository } from "../../../domain/repositories/IPokemonRepository";
+import type { Pokemon } from '@domain/entities/Pokemon';
+import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
 
 export class InMemoryPokemonRepository implements IPokemonRepository {
   private pokemons: Pokemon[] = [];

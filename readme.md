@@ -44,14 +44,14 @@ http://localhost:3000/api/docs
 
 ## Endpoints
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| GET | `/api/v1/pokemons` | Lista todos os Pokémons |
-| GET | `/api/v1/pokemons?type=Electric` | Filtra Pokémons por tipo |
-| GET | `/api/v1/pokemons/:id` | Busca um Pokémon por ID |
-| POST | `/api/v1/pokemons` | Cria um Pokémon |
-| PUT | `/api/v1/pokemons/:id` | Atualiza um Pokémon |
-| DELETE | `/api/v1/pokemons/:id` | Remove um Pokémon |
+| Método | Rota                             | Descrição                |
+| ------ | -------------------------------- | ------------------------ |
+| GET    | `/api/v1/pokemons`               | Lista todos os Pokémons  |
+| GET    | `/api/v1/pokemons?type=Electric` | Filtra Pokémons por tipo |
+| GET    | `/api/v1/pokemons/:id`           | Busca um Pokémon por ID  |
+| POST   | `/api/v1/pokemons`               | Cria um Pokémon          |
+| PUT    | `/api/v1/pokemons/:id`           | Atualiza um Pokémon      |
+| DELETE | `/api/v1/pokemons/:id`           | Remove um Pokémon        |
 
 ## Exemplo de criação
 

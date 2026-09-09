@@ -1,4 +1,4 @@
-import type { Pokemon } from "../entities/Pokemon";
+import type { Pokemon } from '@domain/entities/Pokemon';
 
 export interface IPokemonRepository {
   findAll(type?: string): Promise<Pokemon[]>;
