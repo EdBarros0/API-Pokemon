@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run-dev": "tsx watch server.ts"
+    "run-dev": "tsx watch src/main/server.ts"
   },
   "keywords": [],
   "type": "commonjs",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.2.0",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
@@ -20,7 +21,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "express": "^5.2.1"
   },
   "allowScripts": {
     "esbuild@0.28.2": true
