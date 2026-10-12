@@ -99,12 +99,44 @@ exports.makePokemonRoutes = makePokemonRoutes;
  *         description: Pokémon removido
  *       404:
  *         description: Pokémon não encontrado
+ *
+ * /api/v1/pokemons/{id}/level:
+ *   patch:
+ *     tags:
+ *       - Pokemons
+ *     summary: Atualiza o nível de um Pokémon
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newLevel
+ *             properties:
+ *               newLevel:
+ *                 type: integer
+ *                 example: 10
+ *     responses:
+ *       200:
+ *         description: Nível atualizado
+ *       400:
+ *         description: Nível inválido
+ *       404:
+ *         description: Pokémon não encontrado
  */
 const express_1 = require("express");
 function makePokemonRoutes(controller) {
     const router = (0, express_1.Router)();
     router.get('/', controller.list);
     router.get('/:id', controller.getById);
+    router.patch('/:id/level', controller.updateLevel);
     router.post('/', controller.create);
     router.put('/:id', controller.update);
     router.delete('/:id', controller.delete);

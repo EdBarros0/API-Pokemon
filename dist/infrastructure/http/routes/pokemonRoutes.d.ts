@@ -96,6 +96,37 @@
  *         description: Pokémon removido
  *       404:
  *         description: Pokémon não encontrado
+ *
+ * /api/v1/pokemons/{id}/level:
+ *   patch:
+ *     tags:
+ *       - Pokemons
+ *     summary: Atualiza o nível de um Pokémon
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newLevel
+ *             properties:
+ *               newLevel:
+ *                 type: integer
+ *                 example: 10
+ *     responses:
+ *       200:
+ *         description: Nível atualizado
+ *       400:
+ *         description: Nível inválido
+ *       404:
+ *         description: Pokémon não encontrado
  */
 import { Router } from 'express';
 import type { PokemonController } from '../controllers/PokemonController.js';

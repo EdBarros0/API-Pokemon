@@ -4,6 +4,8 @@ import { makePokemonController } from '@main/factories/makePokemonController';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '@main/config/swagger';
 import { errorHandler } from '@infrastructure/http/middlewares/errorHandler';
+import { makeTrainerRoutes } from '@infrastructure/http/routes/trainerRoutes';
+import { makeTrainerController } from '@main/factories/makeTrainerController';
 
 const app = express();
 
@@ -14,8 +16,11 @@ const port = 3000;
 
 const pokemonController = makePokemonController();
 const pokemonRoutes = makePokemonRoutes(pokemonController);
+const trainerController = makeTrainerController();
+const trainerRoutes = makeTrainerRoutes(trainerController);
 
 app.use('/api/v1/pokemons', pokemonRoutes);
+app.use('/api/v1/trainers', trainerRoutes);
 app.use(errorHandler);
 
 app.listen(port, () => {

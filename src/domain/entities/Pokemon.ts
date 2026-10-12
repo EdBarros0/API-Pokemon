@@ -5,4 +5,5 @@ export interface Pokemon {
   hp: number;
   attack: number;
   defense: number;
+  level?: number;
 }

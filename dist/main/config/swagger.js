@@ -4,7 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.swaggerSpec = void 0;
+const node_fs_1 = require("node:fs");
+const node_path_1 = require("node:path");
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
+const sourceRoutesDirectory = (0, node_path_1.join)(process.cwd(), 'src/infrastructure/http/routes');
+const routeFiles = (0, node_fs_1.existsSync)(sourceRoutesDirectory)
+    ? (0, node_path_1.join)(sourceRoutesDirectory, '*.ts')
+    : (0, node_path_1.join)(process.cwd(), 'dist/infrastructure/http/routes/*.js');
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)({
     definition: {
         openapi: '3.0.3',
@@ -49,11 +55,15 @@ exports.swaggerSpec = (0, swagger_jsdoc_1.default)({
                             type: 'number',
                             example: 40,
                         },
+                        level: {
+                            type: 'integer',
+                            example: 10,
+                        },
                     },
                 },
             },
         },
     },
-    apis: ['./src/infrastructure/http/routes/*.ts'],
+    apis: [routeFiles],
 });
 //# sourceMappingURL=swagger.js.map

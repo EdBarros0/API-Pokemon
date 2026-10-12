@@ -19,17 +19,26 @@ function isCreatePokemonDTO(data) {
     const pokemon = data;
     return typeof pokemon.id === 'string';
 }
+function isUpdatePokemonLevelDTO(data) {
+    if (!data || typeof data !== 'object') {
+        return false;
+    }
+    const payload = data;
+    return typeof payload.newLevel === 'number' && Number.isInteger(payload.newLevel);
+}
 class PokemonController {
     listPokemonsUseCase;
     getPokemonByIdUseCase;
     createPokemonUseCase;
     updatePokemonUseCase;
+    updatePokemonLevelUseCase;
     deletePokemonUseCase;
-    constructor(listPokemonsUseCase, getPokemonByIdUseCase, createPokemonUseCase, updatePokemonUseCase, deletePokemonUseCase) {
+    constructor(listPokemonsUseCase, getPokemonByIdUseCase, createPokemonUseCase, updatePokemonUseCase, updatePokemonLevelUseCase, deletePokemonUseCase) {
         this.listPokemonsUseCase = listPokemonsUseCase;
         this.getPokemonByIdUseCase = getPokemonByIdUseCase;
         this.createPokemonUseCase = createPokemonUseCase;
         this.updatePokemonUseCase = updatePokemonUseCase;
+        this.updatePokemonLevelUseCase = updatePokemonLevelUseCase;
         this.deletePokemonUseCase = deletePokemonUseCase;
     }
     list = async (req, res) => {
@@ -59,6 +68,19 @@ class PokemonController {
         const pokemon = { ...data, id: req.params.id };
         await this.updatePokemonUseCase.execute(pokemon);
         return res.status(200).json(pokemon);
+    };
+    updateLevel = async (req, res) => {
+        if (!isUpdatePokemonLevelDTO(req.body)) {
+            return res.status(400).json({
+                message: 'O campo newLevel deve ser um número inteiro.',
+            });
+        }
+        await this.updatePokemonLevelUseCase.execute(req.params.id, req.body.newLevel);
+        return res.status(200).json({
+            message: 'Nível do Pokémon atualizado com sucesso.',
+            id: req.params.id,
+            newLevel: req.body.newLevel,
+        });
     };
     delete = async (req, res) => {
         await this.deletePokemonUseCase.execute(req.params.id);

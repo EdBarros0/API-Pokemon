@@ -21,6 +21,12 @@ class InMemoryPokemonRepository {
             this.pokemons[index] = pokemon;
         }
     }
+    async updateLevel(id, newLevel) {
+        const pokemon = this.pokemons.find((storedPokemon) => storedPokemon.id === id);
+        if (pokemon) {
+            pokemon.level = newLevel;
+        }
+    }
     async delete(id) {
         this.pokemons = this.pokemons.filter((pokemon) => pokemon.id !== id);
     }

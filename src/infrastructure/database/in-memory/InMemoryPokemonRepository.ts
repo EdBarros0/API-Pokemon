@@ -14,6 +14,17 @@ export class InMemoryPokemonRepository implements IPokemonRepository {
     );
   }
 
+  async searchByName(term: string): Promise<Pokemon[]> {
+    const normalizedTerm = term.toLowerCase();
+    return this.pokemons.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(normalizedTerm),
+    );
+  }
+
+  async count(): Promise<number> {
+    return this.pokemons.length;
+  }
+
   async findById(id: string): Promise<Pokemon | null> {
     return this.pokemons.find((pokemon) => pokemon.id === id) ?? null;
   }
@@ -29,6 +40,14 @@ export class InMemoryPokemonRepository implements IPokemonRepository {
 
     if (index >= 0) {
       this.pokemons[index] = pokemon;
+    }
+  }
+
+  async updateLevel(id: string, newLevel: number): Promise<void> {
+    const pokemon = this.pokemons.find((storedPokemon) => storedPokemon.id === id);
+
+    if (pokemon) {
+      pokemon.level = newLevel;
     }
   }
 

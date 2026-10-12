@@ -1,4 +1,11 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import swaggerJSDoc from 'swagger-jsdoc';
+
+const sourceRoutesDirectory = join(process.cwd(), 'src/infrastructure/http/routes');
+const routeFiles = existsSync(sourceRoutesDirectory)
+  ? join(sourceRoutesDirectory, '*.ts')
+  : join(process.cwd(), 'dist/infrastructure/http/routes/*.js');
 
 export const swaggerSpec = swaggerJSDoc({
   definition: {
@@ -44,10 +51,14 @@ export const swaggerSpec = swaggerJSDoc({
               type: 'number',
               example: 40,
             },
+            level: {
+              type: 'integer',
+              example: 10,
+            },
           },
         },
       },
     },
   },
-  apis: ['./src/infrastructure/http/routes/*.ts'],
+  apis: [routeFiles],
 });
