@@ -1,6 +1,6 @@
 import type { Pokemon } from '@domain/entities/Pokemon';
-import { PokemonAlreadyExistsError } from '@domain/errors/PokemonAlreadyExistsError';
 import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
+import { AppError } from '@domain/errors/app.error';
 
 export class CreatePokemonUseCase {
   constructor(private readonly pokemonRepository: IPokemonRepository) {}
@@ -9,7 +9,7 @@ export class CreatePokemonUseCase {
     const existingPokemon = await this.pokemonRepository.findById(pokemon.id);
 
     if (existingPokemon) {
-      throw new PokemonAlreadyExistsError();
+      throw new AppError('Já existe um Pokémon cadastrado com este ID.', 409);
     }
 
     await this.pokemonRepository.create(pokemon);

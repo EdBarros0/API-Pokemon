@@ -1,6 +1,6 @@
 import type { Pokemon } from '@domain/entities/Pokemon';
-import { ResourceNotFoundError } from '@domain/errors/ResourceNotFoundError';
 import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
+import { AppError } from '@domain/errors/app.error';
 
 export class GetPokemonByIdUseCase {
   constructor(private readonly pokemonRepository: IPokemonRepository) {}
@@ -9,7 +9,7 @@ export class GetPokemonByIdUseCase {
     const pokemon = await this.pokemonRepository.findById(id);
 
     if (!pokemon) {
-      throw new ResourceNotFoundError();
+      throw new AppError('Pokémon não encontrado na base de dados.', 404);
     }
 
     return pokemon;
