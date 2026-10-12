@@ -1,25 +1,40 @@
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: manager_api
+    restart: always
     ports:
-      - "${PORT}:3000"
-    env_file: .env
+      - "${PORT:-3333}:3000"
     environment:
-      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-manager}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-manager_db}?schema=public"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - manager_network
 
   postgres:
     image: postgres:16-alpine
+    container_name: manager_postgres
+    restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-manager}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-manager_db}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-manager} -d ${POSTGRES_DB:-manager_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - manager_network
   adminer:
     image: adminer
     ports:
@@ -28,6 +43,12 @@ services:
       ADMINER_DEFAULT_SERVER: postgres
     depends_on:
       - postgres
+    networks:
+      - manager_network
 
 volumes:
   postgres_data:
+
+networks:
+  manager_network:
+    driver: bridge

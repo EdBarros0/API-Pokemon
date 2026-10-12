@@ -164,7 +164,6 @@ export function makePokemonRoutes(controller: PokemonController): Router {
   router.get('/', controller.list);
   router.get('/search', controller.searchByName);
   router.get('/count', controller.count);
-  router.get('/count', controller.count);
   router.get('/:id', controller.getById);
   router.patch('/:id/level', controller.updateLevel);
   router.post('/', controller.create);

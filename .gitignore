@@ -3,3 +3,4 @@ package-lock.json
 .npmrc
 docs/
 .env
+/src/generated/prisma
