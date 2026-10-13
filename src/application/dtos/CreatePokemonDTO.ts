@@ -5,4 +5,6 @@ export interface CreatePokemonDTO {
   hp: number;
   attack: number;
   defense: number;
+  level: number;
+  trainerId?: string | undefined;
 }

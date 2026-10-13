@@ -4,13 +4,10 @@ import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository
 export class InMemoryPokemonRepository implements IPokemonRepository {
   private pokemons: Pokemon[] = [];
 
-  async findAll(type?: string): Promise<Pokemon[]> {
-    if (!type) {
-      return this.pokemons;
-    }
-
-    return this.pokemons.filter(
-      (pokemon) => pokemon.type.toLowerCase() === type.toLowerCase(),
+  async findAll(filters: { type?: string; minLevel: number; maxLevel: number }): Promise<Pokemon[]> {
+    return this.pokemons.filter((pokemon) =>
+      (!filters.type || pokemon.type.toLowerCase() === filters.type.toLowerCase()) &&
+      pokemon.level >= filters.minLevel && pokemon.level <= filters.maxLevel,
     );
   }
 
@@ -29,8 +26,9 @@ export class InMemoryPokemonRepository implements IPokemonRepository {
     return this.pokemons.find((pokemon) => pokemon.id === id) ?? null;
   }
 
-  async create(pokemon: Pokemon): Promise<void> {
+  async create(pokemon: Pokemon): Promise<Pokemon> {
     this.pokemons.push(pokemon);
+    return pokemon;
   }
 
   async update(pokemon: Pokemon): Promise<void> {

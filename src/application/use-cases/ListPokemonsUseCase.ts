@@ -4,7 +4,7 @@ import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository
 export class ListPokemonsUseCase {
   constructor(private readonly pokemonRepository: IPokemonRepository) {}
 
-  async execute(type?: string): Promise<Pokemon[]> {
-    return this.pokemonRepository.findAll(type);
+  async execute(filters: { type?: string; minLevel: number; maxLevel: number }): Promise<Pokemon[]> {
+    return this.pokemonRepository.findAll(filters);
   }
 }

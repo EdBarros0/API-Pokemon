@@ -17,15 +17,33 @@ export const swaggerSpec = swaggerJSDoc({
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Servidor local',
+        url: '/',
+        description: 'Mesma origem da documentação',
       },
     ],
     components: {
       schemas: {
+        CreatePokemon: {
+          type: 'object',
+          required: ['id', 'name', 'type', 'hp', 'attack', 'defense', 'level'],
+          properties: {
+            id: { type: 'string', example: '25' },
+            name: { type: 'string', minLength: 2, example: 'Pikachu' },
+            type: {
+              type: 'string',
+              enum: ['FIRE', 'WATER', 'GRASS', 'ELECTRIC', 'POISON', 'FLYING'],
+              example: 'ELECTRIC',
+            },
+            hp: { type: 'integer', minimum: 0, example: 35 },
+            attack: { type: 'integer', minimum: 0, example: 55 },
+            defense: { type: 'integer', minimum: 0, example: 40 },
+            level: { type: 'integer', minimum: 1, maximum: 100, example: 10 },
+            trainerId: { type: 'string', format: 'uuid', nullable: true },
+          },
+        },
         Pokemon: {
           type: 'object',
-          required: ['id', 'name', 'type', 'hp', 'attack', 'defense'],
+          required: ['id', 'name', 'type', 'hp', 'attack', 'defense', 'level'],
           properties: {
             id: {
               type: 'string',
@@ -37,7 +55,8 @@ export const swaggerSpec = swaggerJSDoc({
             },
             type: {
               type: 'string',
-              example: 'Electric',
+              enum: ['FIRE', 'WATER', 'GRASS', 'ELECTRIC', 'POISON', 'FLYING'],
+              example: 'ELECTRIC',
             },
             hp: {
               type: 'number',
@@ -55,6 +74,7 @@ export const swaggerSpec = swaggerJSDoc({
               type: 'integer',
               example: 10,
             },
+            trainerId: { type: 'string', format: 'uuid', nullable: true },
           },
         },
       },

@@ -5,5 +5,6 @@ export interface Pokemon {
   hp: number;
   attack: number;
   defense: number;
-  level?: number;
+  level: number;
+  trainerId: string | null;
 }

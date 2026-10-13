@@ -3,13 +3,12 @@ import { IPokemonRepository } from '../../../domain/repositories/IPokemonReposit
 import { prisma } from './client';
 
 export class PrismaPokemonRepository implements IPokemonRepository {
-  async findAll(type?: string): Promise<Pokemon[]> {
-    if (!type) {
-      return prisma.pokemon.findMany();
-    }
-
+  async findAll(filters: { type?: string; minLevel: number; maxLevel: number }): Promise<Pokemon[]> {
     return prisma.pokemon.findMany({
-      where: { type: { equals: type, mode: 'insensitive' } },
+      where: {
+        ...(filters.type ? { type: { equals: filters.type, mode: 'insensitive' as const } } : {}),
+        level: { gte: filters.minLevel, lte: filters.maxLevel },
+      },
     });
   }
 
@@ -27,8 +26,8 @@ export class PrismaPokemonRepository implements IPokemonRepository {
     return prisma.pokemon.findUnique({ where: { id } });
   }
 
-  async create(pokemon: Pokemon): Promise<void> {
-    await prisma.pokemon.create({ data: pokemon });
+  async create(pokemon: Pokemon): Promise<Pokemon> {
+    return prisma.pokemon.create({ data: pokemon });
   }
 
   async update(pokemon: Pokemon): Promise<void> {
@@ -40,7 +39,8 @@ export class PrismaPokemonRepository implements IPokemonRepository {
         hp: pokemon.hp,
         attack: pokemon.attack,
         defense: pokemon.defense,
-        ...(pokemon.level !== undefined ? { level: pokemon.level } : {}),
+        level: pokemon.level,
+        trainerId: pokemon.trainerId,
       },
     });
   }

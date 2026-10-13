@@ -1,6 +1,5 @@
-import type { CreatePokemonDTO } from '@application/dtos/CreatePokemonDTO';
-import type { UpdatePokemonLevelDTO } from '@application/dtos/UpdatePokemonLevelDTO';
 import type { UpdatePokemonDTO } from '@application/dtos/UpdatePokemonDTO';
+import type { CreatePokemonInput, UpdatePokemonLevelInput } from '@infrastructure/http/schemas/pokemon-schemas';
 import { CreatePokemonUseCase } from '@application/use-cases/CreatePokemonUseCase';
 import { CountPokemonsUseCase } from '@application/use-cases/CountPokemonsUseCase';
 import { DeletePokemonUseCase } from '@application/use-cases/DeletePokemonUseCase';
@@ -10,42 +9,6 @@ import { UpdatePokemonUseCase } from '@application/use-cases/UpdatePokemonUseCas
 import { UpdatePokemonLevelUseCase } from '@application/use-cases/UpdatePokemonLevelUseCase';
 import { SearchPokemonsByNameUseCase } from '@application/use-cases/SearchPokemonsByNameUseCase';
 import type { Request, Response } from 'express';
-
-function hasValidPokemonFields(data: unknown): data is UpdatePokemonDTO {
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-
-  const pokemon = data as Record<string, unknown>;
-
-  return (
-    typeof pokemon.name === 'string' &&
-    typeof pokemon.type === 'string' &&
-    typeof pokemon.hp === 'number' &&
-    typeof pokemon.attack === 'number' &&
-    typeof pokemon.defense === 'number'
-  );
-}
-
-function isCreatePokemonDTO(data: unknown): data is CreatePokemonDTO {
-  if (!hasValidPokemonFields(data)) {
-    return false;
-  }
-
-  const pokemon = data as unknown as Record<string, unknown>;
-
-  return typeof pokemon.id === 'string';
-}
-
-function isUpdatePokemonLevelDTO(data: unknown): data is UpdatePokemonLevelDTO {
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-
-  const payload = data as Record<string, unknown>;
-
-  return typeof payload.newLevel === 'number' && Number.isInteger(payload.newLevel);
-}
 
 export class PokemonController {
   constructor(
@@ -60,9 +23,12 @@ export class PokemonController {
   ) {}
 
   list = async (req: Request, res: Response): Promise<Response> => {
-    const type =
-      typeof req.query.type === 'string' ? req.query.type : undefined;
-    const pokemons = await this.listPokemonsUseCase.execute(type);
+    const query = req.query as unknown as {
+      type?: string;
+      minLevel: number;
+      maxLevel: number;
+    };
+    const pokemons = await this.listPokemonsUseCase.execute(query);
 
     return res.status(200).json(pokemons);
   };
@@ -93,29 +59,20 @@ export class PokemonController {
   };
 
   create = async (req: Request, res: Response): Promise<Response> => {
-    const pokemon = req.body;
-    await this.createPokemonUseCase.execute(pokemon);
+    const pokemon = await this.createPokemonUseCase.execute(req.body as CreatePokemonInput);
 
     return res.status(201).json({
       message: 'Pokémon criado com sucesso.',
       data: pokemon,
     });
-  }
+  };
 
   update = async (
     req: Request<{ id: string }>,
     res: Response,
   ): Promise<Response> => {
-    if (!hasValidPokemonFields(req.body)) {
-      return res.status(400).json({
-        message: 'Dados do Pokémon inválidos.',
-      });
-    }
-
-    const data = req.body;
-    const pokemon = { ...data, id: req.params.id };
-
-    await this.updatePokemonUseCase.execute(pokemon);
+    const data = req.body as UpdatePokemonDTO;
+    const pokemon = await this.updatePokemonUseCase.execute(req.params.id, data);
 
     return res.status(200).json(pokemon);
   };
@@ -124,21 +81,17 @@ export class PokemonController {
     req: Request<{ id: string }>,
     res: Response,
   ): Promise<Response> => {
-    if (!isUpdatePokemonLevelDTO(req.body)) {
-      return res.status(400).json({
-        message: 'O campo newLevel deve ser um número inteiro.',
-      });
-    }
+    const { newLevel } = req.body as UpdatePokemonLevelInput;
 
     await this.updatePokemonLevelUseCase.execute(
       req.params.id,
-      req.body.newLevel,
+      newLevel,
     );
 
     return res.status(200).json({
       message: 'Nível do Pokémon atualizado com sucesso.',
       id: req.params.id,
-      newLevel: req.body.newLevel,
+      newLevel,
     });
   };
 

@@ -98,14 +98,24 @@
  */
 import { Router } from 'express';
 import type { TrainerController } from '@infrastructure/http/controllers/TrainerController';
+import { validateRequest } from '@infrastructure/http/middlewares/validate-request';
+import {
+  createTrainerSchema,
+  getTrainerByIdSchema,
+  updateTrainerSchema,
+} from '@infrastructure/http/schemas/trainer-schemas';
 
 export function makeTrainerRoutes(controller: TrainerController): Router {
   const router = Router();
 
   router.get('/', controller.list);
-  router.get('/:id', controller.getById);
-  router.post('/', controller.create);
-  router.put('/:id', controller.update);
+  router.get('/:id', validateRequest({ params: getTrainerByIdSchema }), controller.getById);
+  router.post('/', validateRequest({ body: createTrainerSchema }), controller.create);
+  router.put(
+    '/:id',
+    validateRequest({ params: getTrainerByIdSchema, body: updateTrainerSchema }),
+    controller.update,
+  );
 
   return router;
 }

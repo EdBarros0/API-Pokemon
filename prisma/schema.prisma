@@ -22,6 +22,8 @@ model Pokemon {
   attack  Int
   defense Int
   level   Int    @default(1)
+  trainerId String? @map("trainer_id") @db.Uuid
+  trainer Trainer? @relation(fields: [trainerId], references: [id], onDelete: SetNull)
 
   @@map("pokemons")
 }
@@ -32,6 +34,7 @@ model Trainer {
   email     String   @unique @db.VarChar(255)
   city      String   @db.VarChar(100)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  pokemons  Pokemon[]
 
   @@map("trainers")
 }

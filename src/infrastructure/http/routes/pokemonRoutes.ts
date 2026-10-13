@@ -11,6 +11,16 @@
  *         schema:
  *           type: string
  *         description: Filtra Pokémons por tipo
+ *       - in: query
+ *         name: minLevel
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: maxLevel
+ *         schema:
+ *           type: integer
+ *           default: 100
  *     responses:
  *       200:
  *         description: Lista de Pokémons
@@ -29,7 +39,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/Pokemon"
+ *             $ref: "#/components/schemas/CreatePokemon"
  *     responses:
  *       201:
  *         description: Pokémon criado
@@ -100,7 +110,7 @@
  *       content:
  *         application/json:
  *           schema:
- *             $ref: "#/components/schemas/Pokemon"
+ *             $ref: "#/components/schemas/CreatePokemon"
  *     responses:
  *       200:
  *         description: Pokémon atualizado
@@ -157,18 +167,35 @@
  */
 import { Router } from 'express';
 import type { PokemonController } from '@infrastructure/http/controllers/PokemonController';
+import { validateRequest } from '@infrastructure/http/middlewares/validate-request';
+import {
+  createPokemonSchema,
+  listPokemonsQuerySchema,
+  pokemonIdParamsSchema,
+  searchPokemonsQuerySchema,
+  updatePokemonLevelSchema,
+  updatePokemonSchema,
+} from '@infrastructure/http/schemas/pokemon-schemas';
 
 export function makePokemonRoutes(controller: PokemonController): Router {
   const router = Router();
 
-  router.get('/', controller.list);
-  router.get('/search', controller.searchByName);
+  router.get('/', validateRequest({ query: listPokemonsQuerySchema }), controller.list);
+  router.get('/search', validateRequest({ query: searchPokemonsQuerySchema }), controller.searchByName);
   router.get('/count', controller.count);
-  router.get('/:id', controller.getById);
-  router.patch('/:id/level', controller.updateLevel);
-  router.post('/', controller.create);
-  router.put('/:id', controller.update);
-  router.delete('/:id', controller.delete);
+  router.get('/:id', validateRequest({ params: pokemonIdParamsSchema }), controller.getById);
+  router.patch(
+    '/:id/level',
+    validateRequest({ params: pokemonIdParamsSchema, body: updatePokemonLevelSchema }),
+    controller.updateLevel,
+  );
+  router.post('/', validateRequest({ body: createPokemonSchema }), controller.create);
+  router.put(
+    '/:id',
+    validateRequest({ params: pokemonIdParamsSchema, body: updatePokemonSchema }),
+    controller.update,
+  );
+  router.delete('/:id', validateRequest({ params: pokemonIdParamsSchema }), controller.delete);
 
   return router;
 }

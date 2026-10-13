@@ -2,15 +2,25 @@ import type { Pokemon } from '@domain/entities/Pokemon';
 import type { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
 import { postgresPool } from './connection';
 
-export class PgPokemonRepository implements IPokemonRepository {
-  async findAll(type?: string): Promise<Pokemon[]> {
-    const query = type
-      ? 'SELECT * FROM pokemons WHERE type = $1'
-      : 'SELECT * FROM pokemons';
-    const values = type ? [type] : [];
+function mapPokemonRow(row: Record<string, unknown>): Pokemon {
+  const { trainer_id: trainerId, ...pokemon } = row;
+  return { ...pokemon, trainerId: trainerId ?? null } as Pokemon;
+}
 
-    const result = await postgresPool.query(query, values);
-    return result.rows;
+export class PgPokemonRepository implements IPokemonRepository {
+  async findAll(filters: { type?: string; minLevel: number; maxLevel: number }): Promise<Pokemon[]> {
+    const values: (string | number)[] = [filters.minLevel, filters.maxLevel];
+    const conditions = ['level >= $1', 'level <= $2'];
+    if (filters.type) {
+      values.push(filters.type);
+      conditions.push(`UPPER(type) = UPPER($${values.length})`);
+    }
+
+    const result = await postgresPool.query(
+      `SELECT * FROM pokemons WHERE ${conditions.join(' AND ')}`,
+      values,
+    );
+    return result.rows.map(mapPokemonRow);
   }
 
   async searchByName(term: string): Promise<Pokemon[]> {
@@ -18,7 +28,7 @@ export class PgPokemonRepository implements IPokemonRepository {
       'SELECT * FROM pokemons WHERE name ILIKE $1',
       [`%${term}%`],
     );
-    return result.rows;
+    return result.rows.map(mapPokemonRow);
   }
 
   async count(): Promise<number> {
@@ -33,20 +43,23 @@ export class PgPokemonRepository implements IPokemonRepository {
       'SELECT * FROM pokemons WHERE id = $1',
       [id],
     );
-    return result.rows[0] || null;
+    const row = result.rows[0];
+    return row ? mapPokemonRow(row) : null;
   }
 
-  async create(pokemon: Pokemon): Promise<void> {
-    await postgresPool.query(
-      'INSERT INTO pokemons (id, name, type, hp, attack, defense) VALUES ($1, $2, $3, $4, $5, $6)',
-      [pokemon.id, pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense],
+  async create(pokemon: Pokemon): Promise<Pokemon> {
+    const result = await postgresPool.query(
+      'INSERT INTO pokemons (id, name, type, hp, attack, defense, level, trainer_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [pokemon.id, pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense, pokemon.level, pokemon.trainerId],
     );
+    const row = result.rows[0];
+    return mapPokemonRow(row);
   }
   
   async update(pokemon: Pokemon): Promise<void> {
     await postgresPool.query(
-      'UPDATE pokemons SET name = $1, type = $2, hp = $3, attack = $4, defense = $5 WHERE id = $6',
-      [pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense, pokemon.id],
+      'UPDATE pokemons SET name = $1, type = $2, hp = $3, attack = $4, defense = $5, level = $6, trainer_id = $7 WHERE id = $8',
+      [pokemon.name, pokemon.type, pokemon.hp, pokemon.attack, pokemon.defense, pokemon.level, pokemon.trainerId, pokemon.id],
     );
   }
 
