@@ -22,6 +22,10 @@ model Pokemon {
   attack  Int
   defense Int
   level   Int    @default(1)
+  spriteUrl String? @map("sprite_url")
+  baseExperience Int? @map("base_experience")
+  height Int?
+  weight Int?
   trainerId String? @map("trainer_id") @db.Uuid
   trainer Trainer? @relation(fields: [trainerId], references: [id], onDelete: SetNull)
 

@@ -8,7 +8,9 @@ services:
     ports:
       - "${PORT:-3333}:3000"
     environment:
+      PORT: "3000"
       NODE_ENV: ${NODE_ENV:-development}
+      USE_EXTERNAL_API: ${USE_EXTERNAL_API:-true}
       DATABASE_URL: "postgresql://${POSTGRES_USER:-manager}:${POSTGRES_PASSWORD:-password}@postgres:5432/${POSTGRES_DB:-manager_db}?schema=public"
     depends_on:
       postgres:

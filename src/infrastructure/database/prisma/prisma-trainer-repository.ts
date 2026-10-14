@@ -6,15 +6,31 @@ export class PrismaTrainerRepository implements ITrainerRepository {
   async findAll(): Promise<Trainer[]> {
     return prisma.trainer.findMany();
   }
-  
+
+  async searchByName(name: string): Promise<Trainer[]> {
+    return prisma.trainer.findMany({
+      where: { name: { contains: name, mode: 'insensitive' } },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   async findById(id: string): Promise<Trainer | null> {
     return prisma.trainer.findUnique({ where: { id } });
   }
 
-  async create(trainer: Pick<Trainer, 'name' | 'email' | 'city'>): Promise<Trainer> {
+  async findByIdWithPokemons(id: string) {
+    return prisma.trainer.findUnique({
+      where: { id },
+      include: { pokemons: true },
+    });
+  }
+
+  async create(
+    trainer: Pick<Trainer, 'name' | 'email' | 'city'>,
+  ): Promise<Trainer> {
     return prisma.trainer.create({ data: trainer });
   }
-  
+
   async update(trainer: Trainer): Promise<void> {
     await prisma.trainer.update({
       where: { id: trainer.id },

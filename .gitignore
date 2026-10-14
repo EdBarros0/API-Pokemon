@@ -1,6 +1,9 @@
 node_modules/
 package-lock.json
 .npmrc
+docs/*
 docs/
+docs/pokeAPI.md
 .env
 /src/generated/prisma
+.gitignore

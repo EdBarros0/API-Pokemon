@@ -41,11 +41,29 @@
  *       409:
  *         description: E-mail já cadastrado
  *
+ * /api/v1/trainers/search:
+ *   get:
+ *     tags:
+ *       - Trainers
+ *     summary: Busca treinadores por parte do nome
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: Ash
+ *     responses:
+ *       200:
+ *         description: Lista de treinadores correspondentes (vazia se não houver resultados)
+ *       400:
+ *         description: Parâmetro name ausente ou inválido
+ *
  * /api/v1/trainers/{id}:
  *   get:
  *     tags:
  *       - Trainers
- *     summary: Busca um treinador pelo ID
+ *     summary: Busca um treinador pelo ID, incluindo seus Pokémons
  *     parameters:
  *       - in: path
  *         name: id
@@ -54,7 +72,7 @@
  *           type: string
  *     responses:
  *       200:
- *         description: Treinador encontrado
+ *         description: Treinador encontrado com a lista de Pokémons associados (vazia se não houver)
  *       404:
  *         description: Treinador não encontrado
  *   put:
@@ -102,6 +120,7 @@ import { validateRequest } from '@infrastructure/http/middlewares/validate-reque
 import {
   createTrainerSchema,
   getTrainerByIdSchema,
+  searchTrainersQuerySchema,
   updateTrainerSchema,
 } from '@infrastructure/http/schemas/trainer-schemas';
 
@@ -109,11 +128,27 @@ export function makeTrainerRoutes(controller: TrainerController): Router {
   const router = Router();
 
   router.get('/', controller.list);
-  router.get('/:id', validateRequest({ params: getTrainerByIdSchema }), controller.getById);
-  router.post('/', validateRequest({ body: createTrainerSchema }), controller.create);
+  router.get(
+    '/search',
+    validateRequest({ query: searchTrainersQuerySchema }),
+    controller.searchByName,
+  );
+  router.get(
+    '/:id',
+    validateRequest({ params: getTrainerByIdSchema }),
+    controller.getById,
+  );
+  router.post(
+    '/',
+    validateRequest({ body: createTrainerSchema }),
+    controller.create,
+  );
   router.put(
     '/:id',
-    validateRequest({ params: getTrainerByIdSchema, body: updateTrainerSchema }),
+    validateRequest({
+      params: getTrainerByIdSchema,
+      body: updateTrainerSchema,
+    }),
     controller.update,
   );
 

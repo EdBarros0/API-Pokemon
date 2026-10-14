@@ -3,6 +3,7 @@ import { CreateTrainerUseCase } from '@application/use-cases/CreateTrainerUseCas
 import { GetTrainerByIdUseCase } from '@application/use-cases/GetTrainerByIdUseCase';
 import { ListTrainersUseCase } from '@application/use-cases/ListTrainersUseCase';
 import { UpdateTrainerUseCase } from '@application/use-cases/UpdateTrainerUseCase';
+import { SearchTrainersByNameUseCase } from '@application/use-cases/SearchTrainersByNameUseCase';
 import type { UpdateTrainerDTO } from '@application/dtos/UpdateTrainerDTO';
 import type { Request, Response } from 'express';
 
@@ -14,9 +15,12 @@ function isCreateTrainerDTO(data: unknown): data is CreateTrainerDTO {
   const trainer = data as Record<string, unknown>;
 
   return (
-    typeof trainer.name === 'string' && trainer.name.trim().length > 0 &&
-    typeof trainer.email === 'string' && trainer.email.trim().length > 0 &&
-    typeof trainer.city === 'string' && trainer.city.trim().length > 0
+    typeof trainer.name === 'string' &&
+    trainer.name.trim().length > 0 &&
+    typeof trainer.email === 'string' &&
+    trainer.email.trim().length > 0 &&
+    typeof trainer.city === 'string' &&
+    trainer.city.trim().length > 0
   );
 }
 
@@ -28,9 +32,12 @@ function isUpdateTrainerDTO(data: unknown): data is UpdateTrainerDTO {
   const trainer = data as Record<string, unknown>;
 
   return (
-    typeof trainer.name === 'string' && trainer.name.trim().length > 0 &&
-    typeof trainer.email === 'string' && trainer.email.trim().length > 0 &&
-    typeof trainer.city === 'string' && trainer.city.trim().length > 0
+    typeof trainer.name === 'string' &&
+    trainer.name.trim().length > 0 &&
+    typeof trainer.email === 'string' &&
+    trainer.email.trim().length > 0 &&
+    typeof trainer.city === 'string' &&
+    trainer.city.trim().length > 0
   );
 }
 
@@ -40,10 +47,17 @@ export class TrainerController {
     private readonly getTrainerByIdUseCase: GetTrainerByIdUseCase,
     private readonly createTrainerUseCase: CreateTrainerUseCase,
     private readonly updateTrainerUseCase: UpdateTrainerUseCase,
+    private readonly searchTrainersByNameUseCase: SearchTrainersByNameUseCase,
   ) {}
 
   list = async (_req: Request, res: Response): Promise<Response> => {
     const trainers = await this.listTrainersUseCase.execute();
+    return res.status(200).json(trainers);
+  };
+
+  searchByName = async (req: Request, res: Response): Promise<Response> => {
+    const { name } = req.query as { name: string };
+    const trainers = await this.searchTrainersByNameUseCase.execute(name);
     return res.status(200).json(trainers);
   };
 
@@ -90,5 +104,4 @@ export class TrainerController {
       data: trainer,
     });
   };
-
 }

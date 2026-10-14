@@ -25,6 +25,14 @@ export const getTrainerByIdSchema = z.object({
   id: z.string().uuid('O ID do treinador deve ser um UUID válido'),
 });
 
+export const searchTrainersQuerySchema = z.object({
+  name: z
+    .string({ error: 'Informe o nome para pesquisar.' })
+    .trim()
+    .min(1, 'Informe o nome para pesquisar.'),
+});
+
 export type CreateTrainerDTO = z.infer<typeof createTrainerSchema>;
 export type UpdateTrainerDTO = z.infer<typeof updateTrainerSchema>;
 export type GetTrainerByIdParams = z.infer<typeof getTrainerByIdSchema>;
+export type SearchTrainersQuery = z.infer<typeof searchTrainersQuerySchema>;
